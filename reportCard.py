@@ -148,12 +148,13 @@ def createReportCard():
 			for h in homeworks:
 				parsedData = h.studentScoreData[student.classId-1].split(',')
 				studentScore = parsedData[2]
-				total += float(studentScore)
 				submitDate = parsedData[1]
 				if len(studentScore) == 0:
 					studentScore = "0"
+				total += float(studentScore)
 				texFile.write("\t\t\t"+h.assignmentName+" & "+h.assignedDate+" & "+h.dueDate+" & "+submitDate+" & " +studentScore+"/"+h.maxPoints+" & "+getLetterGrade(float(studentScore)/float(h.maxPoints))+"\\\\\n")
 			texFile.write(r"""
+			TOTAL & & & & """+str(('%f' % total).rstrip('0').rstrip('.'))+"""/"""+str(h.maxPoints)+""" & \\
 		\end{tabularx}
 	\end{center}""")
 	
@@ -166,14 +167,17 @@ def createReportCard():
 			Name & Assigned date & Score & Grade\\
 			\hline
 """)
+			total = 0
 			for h in quizes:
 				parsedData = h.studentScoreData[student.classId-1].split(',')
 				studentScore = parsedData[2]
 				submitDate = parsedData[1]
 				if len(studentScore) == 0:
 					studentScore = "0"
+				total += float(studentScore)
 				texFile.write("\t\t\t"+h.assignmentName+" & "+h.assignedDate+" & " +studentScore+"/"+h.maxPoints+" & "+getLetterGrade(float(studentScore)/float(h.maxPoints))+"\\\\\n")
 			texFile.write(r"""
+			TOTAL & & """+str(('%f' % total).rstrip('0').rstrip('.'))+"""/"""+str(h.maxPoints)+""" & \\
 		\end{tabularx}
 	\end{center}""")
 	
@@ -186,14 +190,17 @@ def createReportCard():
 			Name & Assigned date & Score & Grade\\
 			\hline
 """)
+			total = 0
 			for h in exams:
 				parsedData = h.studentScoreData[student.classId-1].split(',')
 				studentScore = parsedData[2]
 				submitDate = parsedData[1]
 				if len(studentScore) == 0:
 					studentScore = "0"
+				total += float(studentScore)
 				texFile.write("\t\t\t"+h.assignmentName+" & "+h.assignedDate+" & " +studentScore+"/"+h.maxPoints+" & "+getLetterGrade(float(studentScore)/float(h.maxPoints))+"\\\\\n")
 			texFile.write(r"""
+			TOTAL & & """+str(('%f' % total).rstrip('0').rstrip('.'))+"""/"""+str(h.maxPoints)+""" & \\
 		\end{tabularx}
 	\end{center}""")
 		
