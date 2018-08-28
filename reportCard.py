@@ -154,11 +154,7 @@ def createReportCard():
 				total += float(studentScore)
 				texFile.write("\t\t\t"+h.assignmentName+" & "+h.assignedDate+" & "+h.dueDate+" & "+submitDate+" & " +studentScore+"/"+h.maxPoints+" & "+getLetterGrade(float(studentScore)/float(h.maxPoints))+"\\\\\n")
 			texFile.write(r"""
-<<<<<<< HEAD
-			TOTAL & & & & """+str(('%f' % total).rstrip('0').rstrip('.'))+"""/"""+str(h.maxPoints)+""" & """+getLetterGrade(total/h.maxPoints)+"""\\
-=======
-			TOTAL & & & & """+str(('%f' % total).rstrip('0').rstrip('.'))+"""/"""+str(h.maxPoints)+""" & \\
->>>>>>> fa815d008181ce6ee6535b3cc463879b2a92c4cb
+			TOTAL & & & & """+str(('%f' % total).rstrip('0').rstrip('.'))+"""/"""+str(h.maxPoints)+""" & """+getLetterGrade(total/float(h.maxPoints))+"""\\
 		\end{tabularx}
 	\end{center}""")
 	
@@ -181,11 +177,7 @@ def createReportCard():
 				total += float(studentScore)
 				texFile.write("\t\t\t"+h.assignmentName+" & "+h.assignedDate+" & " +studentScore+"/"+h.maxPoints+" & "+getLetterGrade(float(studentScore)/float(h.maxPoints))+"\\\\\n")
 			texFile.write(r"""
-<<<<<<< HEAD
-			TOTAL & & """+str(('%f' % total).rstrip('0').rstrip('.'))+"""/"""+str(h.maxPoints)+""" & """+getLetterGrade(total/h.maxPoints)+"""\\
-=======
-			TOTAL & & """+str(('%f' % total).rstrip('0').rstrip('.'))+"""/"""+str(h.maxPoints)+""" & \\
->>>>>>> fa815d008181ce6ee6535b3cc463879b2a92c4cb
+			TOTAL & & """+str(('%f' % total).rstrip('0').rstrip('.'))+"""/"""+str(h.maxPoints)+""" & """+getLetterGrade(total/float(h.maxPoints))+"""\\
 		\end{tabularx}
 	\end{center}""")
 	
@@ -208,11 +200,7 @@ def createReportCard():
 				total += float(studentScore)
 				texFile.write("\t\t\t"+h.assignmentName+" & "+h.assignedDate+" & " +studentScore+"/"+h.maxPoints+" & "+getLetterGrade(float(studentScore)/float(h.maxPoints))+"\\\\\n")
 			texFile.write(r"""
-<<<<<<< HEAD
-			TOTAL & & """+str(('%f' % total).rstrip('0').rstrip('.'))+"""/"""+str(h.maxPoints)+""" & """+getLetterGrade(total/h.maxPoints)+"""\\
-=======
-			TOTAL & & """+str(('%f' % total).rstrip('0').rstrip('.'))+"""/"""+str(h.maxPoints)+""" & \\
->>>>>>> fa815d008181ce6ee6535b3cc463879b2a92c4cb
+			TOTAL & & """+str(('%f' % total).rstrip('0').rstrip('.'))+"""/"""+str(h.maxPoints)+""" & """+getLetterGrade(total/float(h.maxPoints))+"""\\
 		\end{tabularx}
 	\end{center}""")
 		
