@@ -140,11 +140,12 @@ def createReportCard():
 	\textbf{Assignments}
 	\begin{center}
 		\rowcolors{2}{white}{gray!25}
-		\begin{tabularx}{\textwidth}{X | c | c | c | c | r}
+		\begin{tabularx}{\textwidth}{X | c | c | c | c | c}
 			Name & Assigned Date & Due Date & Submit Date & Score & Grade\\
 			\hline
 """)
 			total = 0
+			maxTotal = 0
 			for h in homeworks:
 				parsedData = h.studentScoreData[student.classId-1].split(',')
 				studentScore = parsedData[2]
@@ -152,9 +153,10 @@ def createReportCard():
 				if len(studentScore) == 0:
 					studentScore = "0"
 				total += float(studentScore)
+				maxTotal += int(h.maxPoints)
 				texFile.write("\t\t\t"+h.assignmentName+" & "+h.assignedDate+" & "+h.dueDate+" & "+submitDate+" & " +studentScore+"/"+h.maxPoints+" & "+getLetterGrade(float(studentScore)/float(h.maxPoints))+"\\\\\n")
 			texFile.write(r"""
-			TOTAL & & & & """+str(('%f' % total).rstrip('0').rstrip('.'))+"""/"""+str(h.maxPoints)+""" & """+getLetterGrade(total/float(h.maxPoints))+"""\\
+			TOTAL & ---------- & ---------- & ---------- & """+str(('%f' % total).rstrip('0').rstrip('.'))+"""/"""+str(maxTotal)+""" & """+getLetterGrade(total/float(h.maxPoints))+"""\\
 		\end{tabularx}
 	\end{center}""")
 	
@@ -163,11 +165,12 @@ def createReportCard():
 	\textbf{Quizes}
 	\begin{center}
 		\rowcolors{2}{white}{gray!25}
-		\begin{tabularx}{\textwidth}{X | c | c | r}
+		\begin{tabularx}{\textwidth}{X | c | c | c}
 			Name & Assigned date & Score & Grade\\
 			\hline
 """)
 			total = 0
+			maxTotal = 0
 			for h in quizes:
 				parsedData = h.studentScoreData[student.classId-1].split(',')
 				studentScore = parsedData[2]
@@ -175,9 +178,10 @@ def createReportCard():
 				if len(studentScore) == 0:
 					studentScore = "0"
 				total += float(studentScore)
+				maxTotal += int(h.maxPoints)
 				texFile.write("\t\t\t"+h.assignmentName+" & "+h.assignedDate+" & " +studentScore+"/"+h.maxPoints+" & "+getLetterGrade(float(studentScore)/float(h.maxPoints))+"\\\\\n")
 			texFile.write(r"""
-			TOTAL & & """+str(('%f' % total).rstrip('0').rstrip('.'))+"""/"""+str(h.maxPoints)+""" & """+getLetterGrade(total/float(h.maxPoints))+"""\\
+			TOTAL & ---------- & """+str(('%f' % total).rstrip('0').rstrip('.'))+"""/"""+str(maxTotal)+""" & """+getLetterGrade(total/maxTotal)+"""\\
 		\end{tabularx}
 	\end{center}""")
 	
@@ -186,11 +190,12 @@ def createReportCard():
 	\textbf{Exam}
 	\begin{center}
 		\rowcolors{2}{white}{gray!25}
-		\begin{tabularx}{\textwidth}{X | c | c | r}
+		\begin{tabularx}{\textwidth}{X | c | c | c}
 			Name & Assigned date & Score & Grade\\
 			\hline
 """)
 			total = 0
+			maxTotal = 0
 			for h in exams:
 				parsedData = h.studentScoreData[student.classId-1].split(',')
 				studentScore = parsedData[2]
@@ -198,9 +203,10 @@ def createReportCard():
 				if len(studentScore) == 0:
 					studentScore = "0"
 				total += float(studentScore)
+				maxTotal += int(h.maxPoints)
 				texFile.write("\t\t\t"+h.assignmentName+" & "+h.assignedDate+" & " +studentScore+"/"+h.maxPoints+" & "+getLetterGrade(float(studentScore)/float(h.maxPoints))+"\\\\\n")
 			texFile.write(r"""
-			TOTAL & & """+str(('%f' % total).rstrip('0').rstrip('.'))+"""/"""+str(h.maxPoints)+""" & """+getLetterGrade(total/float(h.maxPoints))+"""\\
+			TOTAL & ---------- & """+str(('%f' % total).rstrip('0').rstrip('.'))+"""/"""+str(maxTotal)+""" & """+getLetterGrade(total/maxTotal)+"""\\
 		\end{tabularx}
 	\end{center}""")
 		
