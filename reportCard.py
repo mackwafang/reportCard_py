@@ -2,6 +2,10 @@
 #-*- coding: utf-8 -*-
 
 #This python file encodes in UTF-8
+#
+# NOTE TO SELF: WHEN CREATING STUDENT DATA
+# SAVE .CSV FILE AS CSV UTF-8
+#
 import os, subprocess, datetime
 import Assignment
 import Student
@@ -123,8 +127,11 @@ def createReportCard():
 \pagenumbering{gobble}
 
 \begin{document}""")
+
 	global studentData
 	for student in studentData:
+		total = 0
+		maxTotal = 0
 		print("Writing report card for "+student.lastName+", "+student.middleName+", "+student.firstName)
 		texFile.write(r"""
 	\begin{center}
@@ -136,29 +143,31 @@ def createReportCard():
 	\\noindent\\rule[0.5ex]{\linewidth}{1pt}
 """)
 		if not homeworks == []:
-			texFile.write(r"""
-	\textbf{Assignments}
+			texFile.write(r"""\textbf{Assignments}
 	\begin{center}
 		\rowcolors{2}{white}{gray!25}
 		\begin{tabularx}{\textwidth}{X | c | c | c | c | c}
 			Name & Assigned Date & Due Date & Submit Date & Score & Grade\\
 			\hline
 """)
-			total = 0
-			maxTotal = 0
+			assignmentTotal = 0
+			assignmentMaxTotal = 0
 			for h in homeworks:
 				parsedData = h.studentScoreData[student.classId-1].split(',')
 				studentScore = parsedData[2]
 				submitDate = parsedData[1]
 				if len(studentScore) == 0:
 					studentScore = "0"
-				total += float(studentScore)
-				maxTotal += int(h.maxPoints)
+				assignmentTotal += float(studentScore)
+				assignmentMaxTotal += int(h.maxPoints)
+				total += assignmentTotal
+				maxTotal += assignmentMaxTotal
 				texFile.write("\t\t\t"+h.assignmentName+" & "+h.assignedDate+" & "+h.dueDate+" & "+submitDate+" & " +studentScore+"/"+h.maxPoints+" & "+getLetterGrade(float(studentScore)/float(h.maxPoints))+"\\\\\n")
 			texFile.write(r"""
-			TOTAL & ---------- & ---------- & ---------- & """+str(('%f' % total).rstrip('0').rstrip('.'))+"""/"""+str(maxTotal)+""" & """+getLetterGrade(total/float(h.maxPoints))+"""\\
+			TOTAL & ---------- & ---------- & ---------- & """+str(('%f' % assignmentTotal).rstrip('0').rstrip('.'))+"""/"""+str(assignmentMaxTotal)+""" & """+getLetterGrade(assignmentTotal/float(h.maxPoints))+"""\\
 		\end{tabularx}
-	\end{center}""")
+	\end{center}
+	\\noindent\\rule[0.5ex]{\linewidth}{1pt}""")
 	
 		if not quizes == []:
 			texFile.write(r"""
@@ -169,21 +178,80 @@ def createReportCard():
 			Name & Assigned date & Score & Grade\\
 			\hline
 """)
-			total = 0
-			maxTotal = 0
+			assignmentTotal = 0
+			assignmentMaxTotal = 0
 			for h in quizes:
 				parsedData = h.studentScoreData[student.classId-1].split(',')
 				studentScore = parsedData[2]
 				submitDate = parsedData[1]
 				if len(studentScore) == 0:
 					studentScore = "0"
-				total += float(studentScore)
-				maxTotal += int(h.maxPoints)
+				assignmentTotal += float(studentScore)
+				assignmentMaxTotal += int(h.maxPoints)
+				total += assignmentTotal
+				maxTotal += assignmentMaxTotal
 				texFile.write("\t\t\t"+h.assignmentName+" & "+h.assignedDate+" & " +studentScore+"/"+h.maxPoints+" & "+getLetterGrade(float(studentScore)/float(h.maxPoints))+"\\\\\n")
 			texFile.write(r"""
-			TOTAL & ---------- & """+str(('%f' % total).rstrip('0').rstrip('.'))+"""/"""+str(maxTotal)+""" & """+getLetterGrade(total/maxTotal)+"""\\
+			TOTAL & ---------- & """+str(('%f' % assignmentTotal).rstrip('0').rstrip('.'))+"""/"""+str(assignmentMaxTotal)+""" & """+getLetterGrade(assignmentTotal/assignmentMaxTotal)+"""\\
 		\end{tabularx}
-	\end{center}""")
+	\end{center}
+	\\noindent\\rule[0.5ex]{\linewidth}{1pt}""")
+
+		if not projects == []:
+			texFile.write(r"""
+	\textbf{Projects}
+	\begin{center}
+		\rowcolors{2}{white}{gray!25}
+		\begin{tabularx}{\textwidth}{X | c | c | c | c | c}
+			Name & Assigned Date & Due Date & Submit Date & Score & Grade\\
+			\hline
+""")
+			assignmentTotal = 0
+			assignmentMaxTotal = 0
+			for h in projects:
+				parsedData = h.studentScoreData[student.classId-1].split(',')
+				studentScore = parsedData[2]
+				submitDate = parsedData[1]
+				if len(studentScore) == 0:
+					studentScore = "0"
+				assignmentTotal += float(studentScore)
+				assignmentMaxTotal += int(h.maxPoints)
+				total += assignmentTotal
+				maxTotal += assignmentMaxTotal
+				texFile.write("\t\t\t"+h.assignmentName+" & "+h.assignedDate+" & "+h.dueDate+" & "+submitDate+" & " +studentScore+"/"+h.maxPoints+" & "+getLetterGrade(float(studentScore)/float(h.maxPoints))+"\\\\\n")
+			texFile.write(r"""
+			TOTAL & ---------- & ---------- & ---------- & """+str(('%f' % assignmentTotal).rstrip('0').rstrip('.'))+"""/"""+str(assignmentMaxTotal)+""" & """+getLetterGrade(assignmentTotal/float(h.maxPoints))+"""\\
+		\end{tabularx}
+	\end{center}
+	\\noindent\\rule[0.5ex]{\linewidth}{1pt}""")
+	
+		if not extraCredits == []:
+			texFile.write(r"""
+	\textbf{Extra Credits}
+	\begin{center}
+		\rowcolors{2}{white}{gray!25}
+		\begin{tabularx}{\textwidth}{X | c}
+			Name & Score\\
+			\hline
+""")
+			assignmentTotal = 0
+			assignmentMaxTotal = 0
+			for h in extraCredits:
+				parsedData = h.studentScoreData[student.classId-1].split(',')
+				studentScore = parsedData[2]
+				submitDate = parsedData[1]
+				if len(studentScore) == 0:
+					studentScore = "0"
+				assignmentTotal += float(studentScore)
+				assignmentMaxTotal += int(h.maxPoints)
+				total += assignmentTotal
+				maxTotal += assignmentMaxTotal
+				texFile.write("\t\t\t"+h.assignmentName+" & +" +studentScore+"/"+h.maxPoints+"\\\\\n")
+			texFile.write(r"""
+			TOTAL & +"""+str(('%f' % assignmentTotal).rstrip('0').rstrip('.'))+"""/"""+str(assignmentMaxTotal)+"""\\
+		\end{tabularx}
+	\end{center}
+	\\noindent\\rule[0.5ex]{\linewidth}{1pt}""")
 	
 		if not exams == []:
 			texFile.write(r"""
@@ -194,23 +262,35 @@ def createReportCard():
 			Name & Assigned date & Score & Grade\\
 			\hline
 """)
-			total = 0
-			maxTotal = 0
+			assignmentTotal = 0
+			assignmentMaxTotal = 0
 			for h in exams:
 				parsedData = h.studentScoreData[student.classId-1].split(',')
 				studentScore = parsedData[2]
 				submitDate = parsedData[1]
 				if len(studentScore) == 0:
 					studentScore = "0"
-				total += float(studentScore)
-				maxTotal += int(h.maxPoints)
+				assignmentTotal += float(studentScore)
+				assignmentMaxTotal += int(h.maxPoints)
+				total += assignmentTotal
+				maxTotal += assignmentMaxTotal
 				texFile.write("\t\t\t"+h.assignmentName+" & "+h.assignedDate+" & " +studentScore+"/"+h.maxPoints+" & "+getLetterGrade(float(studentScore)/float(h.maxPoints))+"\\\\\n")
 			texFile.write(r"""
-			TOTAL & ---------- & """+str(('%f' % total).rstrip('0').rstrip('.'))+"""/"""+str(maxTotal)+""" & """+getLetterGrade(total/maxTotal)+"""\\
+			TOTAL & ---------- & """+str(('%f' % assignmentTotal).rstrip('0').rstrip('.'))+"""/"""+str(assignmentMaxTotal)+""" & """+getLetterGrade(assignmentTotal/assignmentMaxTotal)+"""\\
 		\end{tabularx}
-	\end{center}""")
-		
+	\end{center}
+	\\noindent\\rule[0.5ex]{\linewidth}{1pt}""")
+	
+		texFile.write(r"""
+		\begin{center}
+			\begin{tabularx}{\textwidth}{X | c | c}
+				& Score & Grade\\
+				TOTAL & """+str(str(('%f' % total).rstrip('0').rstrip('.')))+"""/"""+str(maxTotal)+""" & """+getLetterGrade(total/maxTotal)+"""\\
+			\end{tabularx}
+		\end{center}
+		""")
 		texFile.write("\n\t\\newpage")
+		
 		
 	texFile.write("\n\end{document}")
 	texFile.close()
@@ -246,9 +326,3 @@ def main():
 	return 0
 
 main()
-	
-	
-#
-# NOTE TO SELF: WHEN CREATING STUDENT DATA
-# SAVE .CSV FILE AS CSV UTF-8
-#
