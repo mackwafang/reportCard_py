@@ -3,7 +3,7 @@
 
 # This python file encodes in UTF-8
 
-class Student():
+class Student:
 	def __init__(self,classId,studentId,familyId,lastName,middleName,firstName,totalScore,percent,grade):
 		self.classId = classId
 		self.studentId = studentId

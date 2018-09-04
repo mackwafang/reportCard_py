@@ -114,6 +114,5 @@ def main():
 	
 	global fileName
 	global filePath
-	path = os.path.dirname(os.getcwd()+"/Assignments")
 	print("\""+fileName+"\" is created at \""+filePath+"\"")
 main()

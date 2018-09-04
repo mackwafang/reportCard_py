@@ -6,10 +6,14 @@
 # NOTE TO SELF: WHEN CREATING STUDENT DATA
 # SAVE .CSV FILE AS CSV UTF-8
 #
-import os, subprocess, datetime
+import os, datetime
+import sys
 import Assignment
 import Student
 
+assignmentFolder = ""
+studentDataFile = ""
+outputName = "reportCard.tex"
 homeworks = []
 projects = []
 exams = []
@@ -48,7 +52,7 @@ def getAllAssignments(s):
 	# Return:
 	# array of all files' data or None if <Assignments> does not exists
 	#
-	dir = "../Assignments"
+	dir = assignmentFolder
 	assignments = []
 	if (type(s) is not str):
 		return None
@@ -58,35 +62,36 @@ def getAllAssignments(s):
 		for f in files:
 			# looking for homework files
 			if s in f:
-				openedFile = open(dir+"/"+f,"r")
-				#reading content
-				numStudents = int(openedFile.readline().split(',')[1])
-				assignmentType = openedFile.readline().split(',')[1]
-				assignmentName = openedFile.readline().split(',')[1]
-				assignedDate = openedFile.readline().split(',')[1]
-				dueDate = openedFile.readline().split(',')[1]
-				maxPoints = openedFile.readline().split(',')[1]
-				studentScoreData = []
+				try:
+					openedFile = open(dir+"/"+f,"r")
+					#reading content
+					numStudents = int(openedFile.readline().split(',')[1])
+					assignmentType = openedFile.readline().split(',')[1]
+					assignmentName = openedFile.readline().split(',')[1]
+					assignedDate = openedFile.readline().split(',')[1]
+					dueDate = openedFile.readline().split(',')[1]
+					maxPoints = openedFile.readline().split(',')[1]
+					studentScoreData = []
 
-				openedFile.readline()
-				openedFile.readline()
-				for x in range(0,numStudents):
-					studentScoreData.append(openedFile.readline()[:-1])
-				
-				openedFile.close()
-				a = Assignment.Assignment(assignmentType,assignmentName,assignedDate,dueDate,maxPoints,studentScoreData)
-				assignments.append(a)
+					openedFile.readline()
+					openedFile.readline()
+					for x in range(0,numStudents):
+						studentScoreData.append(openedFile.readline()[:-1])
+					
+					openedFile.close()
+					a = Assignment.Assignment(assignmentType,assignmentName,assignedDate,dueDate,maxPoints,studentScoreData)
+					assignments.append(a)
+				except IOError:
+					return None
 		return assignments
 	else:
-		print("<Assignments> folder does not exists")
 		return None
 
 def getStudentData():
 	studentData = []
 	try:
-		file = open("../studentData.csv",'r',encoding='utf-8')
+		file = open(studentDataFile,'r',encoding='utf-8')
 	except IOError:
-		print("<studentData.csv> file does not exists or unreadable")
 		return None
 
 	file.readline()
@@ -113,10 +118,10 @@ def getStudentData():
 
 def createReportCard():
 	try:
-		texFile = open("../reportCard.tex","w",encoding='utf-8')
+		texFile = open("./"+outputName,"w",encoding='utf-8')
 	except IOError:
-		print("<reportCard.tex> cannot be opened for writing")
 		return None
+		
 	texFile.write(r"""\documentclass{article}
 \usepackage[T1]{fontenc}
 \usepackage[ttdefault=true]{AnonymousPro}
@@ -132,7 +137,6 @@ def createReportCard():
 	for student in studentData:
 		total = 0
 		maxTotal = 0
-		print("Writing report card for "+student.lastName+", "+student.middleName+", "+student.firstName)
 		texFile.write(r"""
 	\begin{center}
 		\begin{tabularx}{\textwidth}{X r}
@@ -160,9 +164,9 @@ def createReportCard():
 					studentScore = "0"
 				assignmentTotal += float(studentScore)
 				assignmentMaxTotal += int(h.maxPoints)
-				total += assignmentTotal
-				maxTotal += assignmentMaxTotal
 				texFile.write("\t\t\t"+h.assignmentName+" & "+h.assignedDate+" & "+h.dueDate+" & "+submitDate+" & " +studentScore+"/"+h.maxPoints+" & "+getLetterGrade(float(studentScore)/float(h.maxPoints))+"\\\\\n")
+			total += assignmentTotal
+			maxTotal += assignmentMaxTotal
 			texFile.write(r"""
 			TOTAL & ---------- & ---------- & ---------- & """+str(('%f' % assignmentTotal).rstrip('0').rstrip('.'))+"""/"""+str(assignmentMaxTotal)+""" & """+getLetterGrade(assignmentTotal/float(h.maxPoints))+"""\\
 		\end{tabularx}
@@ -188,9 +192,9 @@ def createReportCard():
 					studentScore = "0"
 				assignmentTotal += float(studentScore)
 				assignmentMaxTotal += int(h.maxPoints)
-				total += assignmentTotal
-				maxTotal += assignmentMaxTotal
 				texFile.write("\t\t\t"+h.assignmentName+" & "+h.assignedDate+" & " +studentScore+"/"+h.maxPoints+" & "+getLetterGrade(float(studentScore)/float(h.maxPoints))+"\\\\\n")
+			total += assignmentTotal
+			maxTotal += assignmentMaxTotal
 			texFile.write(r"""
 			TOTAL & ---------- & """+str(('%f' % assignmentTotal).rstrip('0').rstrip('.'))+"""/"""+str(assignmentMaxTotal)+""" & """+getLetterGrade(assignmentTotal/assignmentMaxTotal)+"""\\
 		\end{tabularx}
@@ -216,9 +220,9 @@ def createReportCard():
 					studentScore = "0"
 				assignmentTotal += float(studentScore)
 				assignmentMaxTotal += int(h.maxPoints)
-				total += assignmentTotal
-				maxTotal += assignmentMaxTotal
 				texFile.write("\t\t\t"+h.assignmentName+" & "+h.assignedDate+" & "+h.dueDate+" & "+submitDate+" & " +studentScore+"/"+h.maxPoints+" & "+getLetterGrade(float(studentScore)/float(h.maxPoints))+"\\\\\n")
+			total += assignmentTotal
+			maxTotal += assignmentMaxTotal
 			texFile.write(r"""
 			TOTAL & ---------- & ---------- & ---------- & """+str(('%f' % assignmentTotal).rstrip('0').rstrip('.'))+"""/"""+str(assignmentMaxTotal)+""" & """+getLetterGrade(assignmentTotal/float(h.maxPoints))+"""\\
 		\end{tabularx}
@@ -244,11 +248,10 @@ def createReportCard():
 					studentScore = "0"
 				assignmentTotal += float(studentScore)
 				assignmentMaxTotal += int(h.maxPoints)
-				total += assignmentTotal
-				maxTotal += assignmentMaxTotal
 				texFile.write("\t\t\t"+h.assignmentName+" & +" +studentScore+"/"+h.maxPoints+"\\\\\n")
+			total += assignmentTotal
 			texFile.write(r"""
-			TOTAL & +"""+str(('%f' % assignmentTotal).rstrip('0').rstrip('.'))+"""/"""+str(assignmentMaxTotal)+"""\\
+			TOTAL & +"""+str(('%f' % assignmentTotal).rstrip('0').rstrip('.'))+"""\\
 		\end{tabularx}
 	\end{center}
 	\\noindent\\rule[0.5ex]{\linewidth}{1pt}""")
@@ -272,9 +275,9 @@ def createReportCard():
 					studentScore = "0"
 				assignmentTotal += float(studentScore)
 				assignmentMaxTotal += int(h.maxPoints)
-				total += assignmentTotal
-				maxTotal += assignmentMaxTotal
 				texFile.write("\t\t\t"+h.assignmentName+" & "+h.assignedDate+" & " +studentScore+"/"+h.maxPoints+" & "+getLetterGrade(float(studentScore)/float(h.maxPoints))+"\\\\\n")
+			total += assignmentTotal
+			maxTotal += assignmentMaxTotal
 			texFile.write(r"""
 			TOTAL & ---------- & """+str(('%f' % assignmentTotal).rstrip('0').rstrip('.'))+"""/"""+str(assignmentMaxTotal)+""" & """+getLetterGrade(assignmentTotal/assignmentMaxTotal)+"""\\
 		\end{tabularx}
@@ -291,38 +294,50 @@ def createReportCard():
 		""")
 		texFile.write("\n\t\\newpage")
 		
-		
 	texFile.write("\n\end{document}")
 	texFile.close()
-	return
+	return 0
 
-def main():
-
+def main(file,folder,name):
+	
+	global assignmentFolder
+	assignmentFolder = folder
+	
+	global studentDataFile
+	studentDataFile = file
+	
+	global outputName
+	outputName = name
+	
 	global studentData
 	studentData = getStudentData()
-
+	if studentData == None:
+		return 1
+	
 	global homeworks
 	homeworks = getAllAssignments("HOMEWORK")
-	homeworks.sort(key=lambda s:s.assignedDate)
 	
 	global projects
 	projects = getAllAssignments("PROJECT")
-	projects.sort(key=lambda s:s.assignedDate)
 	
 	global exams
 	exams = getAllAssignments("EXAM")
-	exams.sort(key=lambda s:s.assignedDate)
 	
 	global quizes
 	quizes = getAllAssignments("QUIZ")
-	quizes.sort(key=lambda s:s.assignedDate)
 	
 	global extraCredits
 	extraCredits = getAllAssignments("EXTRACREDIT")
-	extraCredits.sort(key=lambda s:s.assignedDate)
 	
-	createReportCard()
+	if homeworks == None or projects == None or exams == None or quizes == None or extraCredits == None:
+		return 2
+	else:
+		homeworks.sort(key=lambda s:s.assignedDate)
+		projects.sort(key=lambda s:s.assignedDate)
+		exams.sort(key=lambda s:s.assignedDate)
+		quizes.sort(key=lambda s:s.assignedDate)
+		extraCredits.sort(key=lambda s:s.assignedDate)
+		if createReportCard() == None:
+			return 3
 	
 	return 0
-
-main()
