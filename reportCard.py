@@ -6,7 +6,8 @@
 # NOTE TO SELF: WHEN CREATING STUDENT DATA
 # SAVE .CSV FILE AS CSV UTF-8
 #
-import os, datetime
+import os
+import datetime
 import sys
 import Assignment
 import Student
@@ -14,6 +15,7 @@ import Student
 assignmentFolder = ""
 studentDataFile = ""
 outputName = "reportCard.tex"
+outputLocation = "."
 homeworks = []
 projects = []
 exams = []
@@ -54,7 +56,7 @@ def getAllAssignments(s):
 	#
 	dir = assignmentFolder
 	assignments = []
-	if (type(s) is not str):
+	if type(s) is not str:
 		return None
 	if os.path.isdir(dir):
 		# list file names in the assignment folder
@@ -83,9 +85,8 @@ def getAllAssignments(s):
 					assignments.append(a)
 				except IOError:
 					return None
-		return assignments
-	else:
-		return None
+		return assignments#sorted(assignments,key=lambda x : x.assignmentName)
+	return None
 
 def getStudentData():
 	studentData = []
@@ -99,14 +100,14 @@ def getStudentData():
 		data = file.readline().split(',')
 		if len(data) != 1:
 			classId = int(data[0])
-			studentId = int(data[1])
-			familyId = int(data[2])
+			familyId = int(data[1])
+			studentId = int(data[2])
 			lastName = data[3]
 			middleName = data[4]
-			firstName = data[5]
-			totalScore = int(data[6])
-			percent = int(data[7])
-			grade = data[8][:-1]
+			firstName = data[5][:len(data[5])-1]
+			totalScore = 1#int(data[6])
+			percent = 1#int(data[7])
+			grade = 1#data[8][:-1]
 
 			s_data = Student.Student(classId,studentId,familyId,lastName,middleName,firstName,totalScore,percent,grade)
 			studentData.append(s_data)
@@ -118,13 +119,12 @@ def getStudentData():
 
 def createReportCard():
 	try:
-		texFile = open("./"+outputName,"w",encoding='utf-8')
+		texFile = open(outputLocation+"/"+outputName,"w",encoding='utf-8')
 	except IOError:
 		return None
 		
 	texFile.write(r"""\documentclass{article}
-\usepackage[T1]{fontenc}
-\usepackage[ttdefault=true]{AnonymousPro}
+\usepackage{fontenc}
 \renewcommand*\familydefault{\ttdefault} %% Only if the base font of the document is to be typewriter style
 \usepackage{fullpage}
 \usepackage{tabularx}
@@ -135,12 +135,13 @@ def createReportCard():
 
 	global studentData
 	for student in studentData:
+		print("Writing data for "+student.lastName+", "+student.middleName+", "+student.firstName+"...")
 		total = 0
 		maxTotal = 0
 		texFile.write(r"""
 	\begin{center}
 		\begin{tabularx}{\textwidth}{X r}
-			5B VN Annual Report Card & Report Compiled on """+str(datetime.date.today())+"""\\\\
+			5B VN Report Card & Report Compiled on """+str(datetime.date.today())+""" \\\\
 			STUDENT NAME: """+student.lastName+""", """+student.middleName+""", """+student.firstName+""" & STUDENT ID: """+str(student.studentId)+"""
 		\end{tabularx}
 	\end{center}
@@ -150,8 +151,8 @@ def createReportCard():
 			texFile.write(r"""\textbf{Assignments}
 	\begin{center}
 		\rowcolors{2}{white}{gray!25}
-		\begin{tabularx}{\textwidth}{X | c | c | c | c | c}
-			Name & Assigned Date & Due Date & Submit Date & Score & Grade\\
+		\begin{tabularx}{\textwidth}{X | c | c | c | c}
+			Name & Assigned Date & Due Date & Score & Grade\\
 			\hline
 """)
 			assignmentTotal = 0
@@ -164,11 +165,11 @@ def createReportCard():
 					studentScore = "0"
 				assignmentTotal += float(studentScore)
 				assignmentMaxTotal += int(h.maxPoints)
-				texFile.write("\t\t\t"+h.assignmentName+" & "+h.assignedDate+" & "+h.dueDate+" & "+submitDate+" & " +studentScore+"/"+h.maxPoints+" & "+getLetterGrade(float(studentScore)/float(h.maxPoints))+"\\\\\n")
+				texFile.write("\t\t\t"+h.assignmentName+" & "+h.assignedDate+" & "+h.dueDate+" & "+studentScore+"/"+h.maxPoints+" & "+getLetterGrade(float(studentScore)/float(h.maxPoints))+" \\\\\n")
 			total += assignmentTotal
 			maxTotal += assignmentMaxTotal
 			texFile.write(r"""
-			TOTAL & ---------- & ---------- & ---------- & """+str(('%f' % assignmentTotal).rstrip('0').rstrip('.'))+"""/"""+str(assignmentMaxTotal)+""" & """+getLetterGrade(assignmentTotal/float(h.maxPoints))+"""\\
+			Assignment Total & & & """+str(('%f' % assignmentTotal).rstrip('0').rstrip('.'))+"""/"""+str(assignmentMaxTotal)+""" & """+getLetterGrade(assignmentTotal/float(h.maxPoints))+"""
 		\end{tabularx}
 	\end{center}
 	\\noindent\\rule[0.5ex]{\linewidth}{1pt}""")
@@ -179,7 +180,7 @@ def createReportCard():
 	\begin{center}
 		\rowcolors{2}{white}{gray!25}
 		\begin{tabularx}{\textwidth}{X | c | c | c}
-			Name & Assigned date & Score & Grade\\
+			Name & Assigned date & Score & Grade \\
 			\hline
 """)
 			assignmentTotal = 0
@@ -192,11 +193,11 @@ def createReportCard():
 					studentScore = "0"
 				assignmentTotal += float(studentScore)
 				assignmentMaxTotal += int(h.maxPoints)
-				texFile.write("\t\t\t"+h.assignmentName+" & "+h.assignedDate+" & " +studentScore+"/"+h.maxPoints+" & "+getLetterGrade(float(studentScore)/float(h.maxPoints))+"\\\\\n")
+				texFile.write("\t\t\t"+h.assignmentName+" & "+h.assignedDate+" & " +studentScore+"/"+h.maxPoints+" & "+getLetterGrade(float(studentScore)/float(h.maxPoints))+" \\\\\n")
 			total += assignmentTotal
 			maxTotal += assignmentMaxTotal
 			texFile.write(r"""
-			TOTAL & ---------- & """+str(('%f' % assignmentTotal).rstrip('0').rstrip('.'))+"""/"""+str(assignmentMaxTotal)+""" & """+getLetterGrade(assignmentTotal/assignmentMaxTotal)+"""\\
+			TOTAL & & """+str(('%f' % assignmentTotal).rstrip('0').rstrip('.'))+"""/"""+str(assignmentMaxTotal)+""" & """+getLetterGrade(assignmentTotal/assignmentMaxTotal)+"""
 		\end{tabularx}
 	\end{center}
 	\\noindent\\rule[0.5ex]{\linewidth}{1pt}""")
@@ -206,8 +207,8 @@ def createReportCard():
 	\textbf{Projects}
 	\begin{center}
 		\rowcolors{2}{white}{gray!25}
-		\begin{tabularx}{\textwidth}{X | c | c | c | c | c}
-			Name & Assigned Date & Due Date & Submit Date & Score & Grade\\
+		\begin{tabularx}{\textwidth}{X | c | c | c | c}
+			Name & Assigned Date & Due Date & Score & Grade \\
 			\hline
 """)
 			assignmentTotal = 0
@@ -220,11 +221,11 @@ def createReportCard():
 					studentScore = "0"
 				assignmentTotal += float(studentScore)
 				assignmentMaxTotal += int(h.maxPoints)
-				texFile.write("\t\t\t"+h.assignmentName+" & "+h.assignedDate+" & "+h.dueDate+" & "+submitDate+" & " +studentScore+"/"+h.maxPoints+" & "+getLetterGrade(float(studentScore)/float(h.maxPoints))+"\\\\\n")
+				texFile.write("\t\t\t"+h.assignmentName+" & "+h.assignedDate+" & "+h.dueDate+" & "+studentScore+"/"+h.maxPoints+" & "+getLetterGrade(float(studentScore)/float(h.maxPoints))+" \\\\\n")
 			total += assignmentTotal
 			maxTotal += assignmentMaxTotal
 			texFile.write(r"""
-			TOTAL & ---------- & ---------- & ---------- & """+str(('%f' % assignmentTotal).rstrip('0').rstrip('.'))+"""/"""+str(assignmentMaxTotal)+""" & """+getLetterGrade(assignmentTotal/float(h.maxPoints))+"""\\
+			Projects Total & & & """+str(('%f' % assignmentTotal).rstrip('0').rstrip('.'))+"""/"""+str(assignmentMaxTotal)+""" & """+getLetterGrade(assignmentTotal/float(h.maxPoints))+"""
 		\end{tabularx}
 	\end{center}
 	\\noindent\\rule[0.5ex]{\linewidth}{1pt}""")
@@ -235,7 +236,7 @@ def createReportCard():
 	\begin{center}
 		\rowcolors{2}{white}{gray!25}
 		\begin{tabularx}{\textwidth}{X | c}
-			Name & Score\\
+			Name & Score \\
 			\hline
 """)
 			assignmentTotal = 0
@@ -248,10 +249,10 @@ def createReportCard():
 					studentScore = "0"
 				assignmentTotal += float(studentScore)
 				assignmentMaxTotal += int(h.maxPoints)
-				texFile.write("\t\t\t"+h.assignmentName+" & +" +studentScore+"/"+h.maxPoints+"\\\\\n")
+				texFile.write("\t\t\t"+h.assignmentName+" & +" +studentScore+"/"+h.maxPoints+" \\\\\n")
 			total += assignmentTotal
 			texFile.write(r"""
-			TOTAL & +"""+str(('%f' % assignmentTotal).rstrip('0').rstrip('.'))+"""\\
+			Extra Credits Total & +"""+str(('%f' % assignmentTotal).rstrip('0').rstrip('.'))+""" \\\\
 		\end{tabularx}
 	\end{center}
 	\\noindent\\rule[0.5ex]{\linewidth}{1pt}""")
@@ -262,7 +263,7 @@ def createReportCard():
 	\begin{center}
 		\rowcolors{2}{white}{gray!25}
 		\begin{tabularx}{\textwidth}{X | c | c | c}
-			Name & Assigned date & Score & Grade\\
+			Name & Assigned date & Score & Grade \\
 			\hline
 """)
 			assignmentTotal = 0
@@ -275,11 +276,11 @@ def createReportCard():
 					studentScore = "0"
 				assignmentTotal += float(studentScore)
 				assignmentMaxTotal += int(h.maxPoints)
-				texFile.write("\t\t\t"+h.assignmentName+" & "+h.assignedDate+" & " +studentScore+"/"+h.maxPoints+" & "+getLetterGrade(float(studentScore)/float(h.maxPoints))+"\\\\\n")
+				texFile.write("\t\t\t"+h.assignmentName+" & "+h.assignedDate+" & " +studentScore+"/"+h.maxPoints+" & "+getLetterGrade(float(studentScore)/float(h.maxPoints))+" \\\\\n")
 			total += assignmentTotal
 			maxTotal += assignmentMaxTotal
 			texFile.write(r"""
-			TOTAL & ---------- & """+str(('%f' % assignmentTotal).rstrip('0').rstrip('.'))+"""/"""+str(assignmentMaxTotal)+""" & """+getLetterGrade(assignmentTotal/assignmentMaxTotal)+"""\\
+			Exam Total & & """+str(('%f' % assignmentTotal).rstrip('0').rstrip('.'))+"""/"""+str(assignmentMaxTotal)+""" & """+getLetterGrade(assignmentTotal/assignmentMaxTotal)+"""
 		\end{tabularx}
 	\end{center}
 	\\noindent\\rule[0.5ex]{\linewidth}{1pt}""")
@@ -288,12 +289,13 @@ def createReportCard():
 		\begin{center}
 			\begin{tabularx}{\textwidth}{X | c | c}
 				& Score & Grade\\
-				TOTAL & """+str(str(('%f' % total).rstrip('0').rstrip('.')))+"""/"""+str(maxTotal)+""" & """+getLetterGrade(total/maxTotal)+"""\\
+				TOTAL & """+str(str(('%f' % total).rstrip('0').rstrip('.')))+"""/"""+str(maxTotal)+""" & """+getLetterGrade(total/maxTotal)+"""\\\\
+				 & """+format((total/maxTotal)*100,'0.2f')+"""\% & \\\\
 			\end{tabularx}
 		\end{center}
 		""")
 		texFile.write("\n\t\\newpage")
-		
+		print('Done\r')
 	texFile.write("\n\end{document}")
 	texFile.close()
 	return 0
@@ -332,11 +334,11 @@ def main(file,folder,name):
 	if homeworks == None or projects == None or exams == None or quizes == None or extraCredits == None:
 		return 2
 	else:
-		homeworks.sort(key=lambda s:s.assignedDate)
-		projects.sort(key=lambda s:s.assignedDate)
-		exams.sort(key=lambda s:s.assignedDate)
-		quizes.sort(key=lambda s:s.assignedDate)
-		extraCredits.sort(key=lambda s:s.assignedDate)
+		homeworks.sort(key=lambda s:s.assignmentName)
+		projects.sort(key=lambda s:s.assignmentName)
+		exams.sort(key=lambda s:s.assignmentName)
+		quizes.sort(key=lambda s:s.assignmentName)
+		extraCredits.sort(key=lambda s:s.assignmentName)
 		if createReportCard() == None:
 			return 3
 	

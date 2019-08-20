@@ -1,12 +1,12 @@
 import os, sys, subprocess
-import reportCard_py
+import reportCard
 
 def getHelp():
 	print("--------|----------------------------------------------")
 	print("Command | Purpose")
 	print("--------|----------------------------------------------")
 	print("create  | Create an assignment and put it in a folder\n"+
-		  "        | Usage: create <assignmentName> <Folder>")
+		  "        | Usage: create <Folder> <studentDataFile>")
 	print("--------|----------------------------------------------")
 	print("compile | Create a report card\n"+
 		  "        | Usage: compile <StudentDataFile> <Folder> [outputName]")
@@ -24,9 +24,9 @@ if __name__ == "__main__":
 		arg = command.split(' ')
 		if arg[0] == "create":
 			if len(arg) == 3:
-				print("create")
+				subprocess.call(['python','./reportCard/createAssignmentFile.py',arg[1],arg[2]])
 			else:
-				print("Usage: create <assignmentName> <Folder>")
+				print("Usage: create <Folder> <studentDataFile>")
 		elif arg[0] == "compile":
 			if len(arg) >= 3:
 				name = "reportCard.tex"
@@ -35,7 +35,7 @@ if __name__ == "__main__":
 				else:
 					name = "reportCard.tex"
 				print("Compiling...")
-				returnCode = reportCard_py.main(os.getcwd()+"/"+arg[1],os.getcwd()+"/"+arg[2]+"/",name)
+				returnCode = reportCard.main(os.getcwd()+"/"+arg[1],os.getcwd()+"/"+arg[2]+"/",name)
 				if not returnCode == 0:
 					print("Error "+str(returnCode)+": "+{
 						1:"Student data cannot be gathered. Please check your student data file.",
@@ -45,9 +45,12 @@ if __name__ == "__main__":
 				else:
 					print(".tex file written")
 					try:
-						subprocess.check_output(['xelatex',name])
+						print("fetching xelatex...")
+						process = subprocess.Popen(['xelatex',name])
+						process.communicate()
+						print("done")
 					except CalledProcessError:
-						
+						print("xelatex error")
 			else:
 				print("Usage: compile <StudentDataFile> <Folder>")
 		elif arg[0] == "help":

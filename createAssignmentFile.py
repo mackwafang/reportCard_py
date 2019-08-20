@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import os, datetime
+import os, datetime, sys
 
 numberOfStudents = 0
 assignmentType = ""
@@ -10,11 +10,13 @@ assignedDate = ""
 dueDate = ""
 fileName = ""
 filePath = ""
+folderName = ""
+studentDataFile = ""
 
 def setNumberOfStudents():
 	global numberOfStudents
 	try:
-		file = open("../studentData.csv",'r',encoding='utf-8')
+		file = open("./"+studentDataFile,'r',encoding='utf-8')
 		numberOfStudents -= 1
 		while not file.readline() == '':
 			numberOfStudents += 1
@@ -67,17 +69,17 @@ def askConfirmation():
 		global fileName
 		fileName = assignmentType+"_"+assignmentName.replace(' ','_')+".csv"
 		global filePath
-		filePath = "../Assignments/"+fileName
+		filePath = "./"+folderName+"/"+fileName
 		dupCount = 0;
 
-		if not os.path.isdir("../Assignments"):
-			os.mkdir("../Assignments")
+		if not os.path.isdir("./"+folderName+""):
+			os.mkdir("./"+folderName+"")
 		
 		while os.path.isfile(filePath):
 			dupCount += 1
 			print(dupCount)
 			fileName = assignmentType+"_"+assignmentName.replace(' ','_')+"("+str(dupCount)+").csv"
-			filePath = "../Assignments/"+fileName
+			filePath = "./"+folderName+"/"+fileName
 
 		file = open(filePath,"w")
 		file.write("numStudents,"+str(numberOfStudents)+"\n")
@@ -103,6 +105,11 @@ def askConfirmation():
 		askConfirmation()
 	
 def main():
+	global folderName
+	folderName = sys.argv[1]
+	global studentDataFile
+	studentDataFile = sys.argv[2]
+	
 	setNumberOfStudents()
 	setAssignmentType()
 	setAssignmentName()
