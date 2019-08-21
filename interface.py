@@ -9,7 +9,6 @@ def createErrorMessage(message,title="Error!",cmd=None):
 	return root
 
 class App(tk.Frame):
-	widgetList = []
 	classFolderLocation = None
 	MIN_SCREEN_WIDTH = 640
 	MIN_SCREEN_HEIGHT = 320
@@ -25,53 +24,64 @@ class App(tk.Frame):
 		self.master.geometry(f'{self.MIN_SCREEN_WIDTH}x{self.MIN_SCREEN_HEIGHT}')
 		
 		titleLabel= tk.Label(self.master,text="Welcome").pack()
-		self.widgetList.append(titleLabel)
 		
 		subFrame = tk.Frame(self.master,width=640,height=320)
-		createClassButton = tk.Button(subFrame,text="Create Class",command=self.createNewClass).pack()
-		self.widgetList.append(createClassButton)
-		
+		createClassButton = tk.Button(subFrame,text="Create Class",command=NewClassFolder).pack()
 		createAssignmentButton = tk.Button(subFrame,text="Create Assignment").pack()
-		self.widgetList.append(createAssignmentButton)
+		
 		subFrame.pack()
-		
-		self.widgetList.append(subFrame)
-		
-	def createNewClass(self):
+
+class NewClassFolder():
+	windowClosed = False;
+	
+	def __init__(self):
 		folder = filedialog.askdirectory()
-		subroot = tk.Tk(className="New Class Name")
-		subroot.protocol("WM_DELETE_WINDOW",lambda: self.onDestroyNewClassWindow(subroot))
-		
-		dirLabel = tk.Label(subroot,text=folder).pack()
-		
-		subframe = tk.Frame(subroot)
-		label = tk.Label(subframe,text="Folder Name:").pack(side=tk.LEFT)
-		entry = tk.Entry(subframe)
-		entry.bind("<Return>",lambda e: self.closeNewClassWindow(event=entry,dir=folder,parent=subroot))
-		entry.pack(side=tk.LEFT)
-		
-		confirmButton = tk.Button(subframe,text="Create Class")
-		confirmButton.bind("<Button-1>",lambda e: self.closeNewClassWindow(event=entry,dir=folder,parent=subroot))
-		confirmButton.pack()
-		
-		subframe.pack()
-		subroot.mainloop()
-		subroot.destroy()
+		if type(folder) == str:
+			subroot = tk.Tk(className="New Class Name")
+			
+			subroot.resizable(False,False)
+			subroot.protocol("WM_DELETE_WINDOW",lambda: self.onDestroyNewClassWindow(subroot))
+			
+			dirLabel = tk.Label(subroot,text=folder).grid(row=0)
+			
+			subframe = tk.Frame(subroot)
+			label = tk.Label(subframe,text="Folder Name:").grid(row=0,column=0)
+			entry = tk.Entry(subframe)
+			entry.bind("<Return>",lambda e: self.closeNewClassWindow(event=entry,dir=folder,parent=subroot))
+			entry.grid(row=0,column=1)
+			
+			confirmButton = tk.Button(subframe,text="Create Class")
+			confirmButton.bind("<Button-1>",lambda e: self.closeNewClassWindow(event=entry,dir=folder,parent=subroot))
+			confirmButton.grid(row=0,column=2)
+			
+			cancelButton = tk.Button(subframe,text="Cancel",command=subroot.quit()).grid(row=1,column=2)
+			subframe.grid(row=1)
+			
+			subroot.mainloop()
+			if not self.windowClosed:
+				subroot.destroy()
 	
 	def onDestroyNewClassWindow(self,root):
 		root.destroy()
+		self.windowClosed = True;
 	
 	def closeNewClassWindow(self,dir="./",event=None,parent=None):
+		# Create a new directory at "dir" with name given by the user
+		# then destroys the windows
 		if "entry" in str(event):
-			folderLocation = dir+"/"+event.get()
-			try:
-				os.mkdir(folderLocation)
-				if not parent == None:
-					parent.quit()
-				createErrorMessage(f'Folder <{event.get()}> created at <{dir}>',title="New Folder")
-			except FileExistsError:
-				# print("dir exists")
-				createErrorMessage(f"Folder <{folderLocation}> already exists")
+			if len(event.get()) != 0:
+				folderLocation = dir+"/"+event.get()
+				try:
+					os.mkdir(folderLocation)
+					if not parent == None:
+						parent.quit()
+					createErrorMessage(f'Folder <{event.get()}> created at <{dir}>',title="New Folder")
+				except FileExistsError:
+					# print("dir exists")
+					createErrorMessage(f"Folder <{folderLocation}> already exists")
+			else:
+				createErrorMessage("Folder name is empty!")
+				
 root = tk.Tk()
 app = App(master=root)
 app.mainloop()
